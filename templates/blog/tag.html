@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% import "macros.html" as macros %}
+{% extends "blog/base.html" %}
+{% import "blog/macros.html" as macros %}
 
 {% block title %}{{ tag.title }}{% endblock %}
 
@@ -9,5 +9,5 @@
       <h1 class="text-center">Posts With Tag {{ tag.title }}</h1>
     </div>
   </div>
-  {% macros.render_posts(posts, pagination=False) %}
+  {{ macros.render_posts(posts, pagination=False) }}
 {% endblock %}
