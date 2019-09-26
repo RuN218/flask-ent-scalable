@@ -7,3 +7,8 @@ class CommentForm(Form):
     name = StringField("Name",
                        validators=[DataRequired(), Length(max=255)])
     text = TextAreaField("Comment", validators=[DataRequired()])
+
+
+class PostForm(Form):
+    title = StringField("Title", [DataRequired(), Length(max=255)])
+    text = TextAreaField("Content", [DataRequired()])

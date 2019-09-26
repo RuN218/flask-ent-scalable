@@ -1,5 +1,5 @@
-{% extends "blog/base.html" %}
-{% import 'blog/macros.html' as macros %}
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
 
 {% block title %}{{ user.username }}'s Posts{% endblock %}
 {% block leftbody %}
@@ -9,5 +9,4 @@
     </div>
 </div>
 {{ macros.render_posts(posts, pagination=False) }}
-
 {% endblock %}

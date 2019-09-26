@@ -11,16 +11,16 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
 </head>
 <body>
-{% include "blog/navbar.html" %}
+{% include "navbar.html" %}
 <div class="container">
   <div class="row row-lg-4">
     <div class="col">
       {% block head %}
-        {% include "blog/head.html" %}
+        {% include "head.html" %}
       {% endblock %}
     </div>
   </div>
-  {% include "blog/messages.html" %}
+  {% include "messages.html" %}
   {% block body %}
     <div class="row">
       <div class="col-lg-9">
@@ -28,14 +28,15 @@
       </div>
       <div class="col-lg-3 rounded">
         {% block rightbody %}
-          {% include "blog/rightbody.html" %}
+          {% include "rightbody.html" %}
         {% endblock %}
       </div>
     </div>
   {% endblock %}
-  {% include "blog/footer.html" %}
+  {% include "footer.html" %}
 </div>
 </body>
+{% block js %}{% endblock %}
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
