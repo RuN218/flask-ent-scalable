@@ -1,13 +1,34 @@
-from flask import render_template, Blueprint, redirect, url_for, flash
+from flask import render_template, Blueprint, redirect, url_for, flash,\
+    request, jsonify
+from flask_jwt_extended import create_access_token
 from flask_login import login_user, logout_user
 
-from . import oid
+from . import oid, authenticate
 from .models import db, User
 from .forms import LoginForm, RegisterForm, OpenIDForm
 
 auth_blueprint = Blueprint("auth", __name__,
                            template_folder="../templates/auth",
                            url_prefix="/auth")
+
+
+@auth_blueprint.route("/api", methods=["POST"])
+def api():
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+    if not username:
+        return jsonify({"msg": "Missing username parameter"}), 400
+    if not password:
+        return jsonify({"msg": "Missing password parameter"}), 400
+    user = authenticate(username, password)
+    if not user:
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    access_token = create_access_token(identity=user.id)
+    return jsonify(access_token=access_token), 200
 
 
 @auth_blueprint.route("/login", methods=["GET", "POST"])

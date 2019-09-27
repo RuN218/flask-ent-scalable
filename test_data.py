@@ -47,21 +47,6 @@ def generate_tags(n):
     return tags
 
 
-def generate_users(n):
-    users = list()
-    for i in range(n):
-        user = User(username=faker.name())
-        user.password = "password"
-        try:
-            db.session.add(user)
-            db.session.commit()
-            users.append(user)
-        except Exception as e:
-            log.error("Fail to add user %s: %s" % (str(user), e))
-            db.session.rollback()
-    return users
-
-
 def generate_roles():
     roles = list()
     for rolename in fake_roles:
@@ -107,7 +92,8 @@ def generate_posts(n, users, tags):
         post = Post()
         post.title = faker.sentence()
         post.text = faker.text(max_nb_chars=1000)
-        post.publish_date = faker.date_this_century(before_today=True, after_today=False)
+        post.publish_date = faker.date_this_century(
+            before_today=True, after_today=False)
         post.user_id = users[random.randrange(0, len(users))].id
         post.tags = [tags[random.randrange(0, len(tags))] for i in range(0, 2)]
         try:

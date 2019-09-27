@@ -8,6 +8,7 @@ from flask_dance.contrib.twitter import make_twitter_blueprint, twitter
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
 from flask_dance.consumer import oauth_authorized
 from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
 
 
 class BlogAnonymous(AnonymousUserMixin):
@@ -17,6 +18,7 @@ class BlogAnonymous(AnonymousUserMixin):
 
 bcrypt = Bcrypt()
 oid = OpenID()
+jwt = JWTManager()
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
@@ -30,6 +32,7 @@ def create_module(app, **kwargs):
     bcrypt.init_app(app)
     oid.init_app(app)
     login_manager.init_app(app)
+    jwt.init_app(app)
 
     twitter_blueprint = make_twitter_blueprint(
         api_key=app.config.get("TWITTER_API_KEY"),
@@ -43,6 +46,20 @@ def create_module(app, **kwargs):
 
     from .controllers import auth_blueprint
     app.register_blueprint(auth_blueprint)
+
+
+def authenticate(username, password):
+    from .models import User
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return None
+    if not user.check_password(password):
+        return None
+    return user
+
+
+def identify(payload):
+    return load_user(payload["identity"])
 
 
 def has_role(name):
