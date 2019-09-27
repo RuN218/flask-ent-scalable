@@ -45,3 +45,13 @@ class Comment(db.Model):
 
     def __repr__(self):
         return f"<Comment '{self.text[:15]}'>"
+
+
+class Reminder(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    date = db.Column(db.DateTime())
+    email = db.Column(db.String())
+    text = db.Column(db.Text())
+
+    def __repr__(self):
+        return f"<Reminder '{self.text[:20]}'>"

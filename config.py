@@ -1,5 +1,7 @@
 import os
 
+from celery.schedules import crontab
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -26,3 +28,19 @@ class DevConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + \
                               os.path.join(basedir, "database.db")
+
+    CELERY_IMPORTS = ("webapp.blog.tasks",)
+    CELERY_BROKER_URL = "amqp://rabbitmq:rabbitmq@localhost//"
+    CELERY_RESULT_BACKEND = "amqp://rabbitmq:rabbitmq@localhost//"
+
+    SMTP_SERVER = "smtp.gmail.com"
+    SMTP_USER = "218.run@gmail.com"
+    SMTP_PASSWORD = "djctvm nhb nhb"
+    SMT_FROM = "from@flask.com"
+
+    CELERY_SCHEDULE = {
+        "weekly-digest": {
+            "task": "blog.tasks.digest",
+            "schedule": crontab(day_of_week=6, hour="10")
+        },
+    }

@@ -1,9 +1,11 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_celery import Celery
 
 db = SQLAlchemy()
 migrate = Migrate()
+celery = Celery()
 
 
 def page_not_found(error):
@@ -23,6 +25,8 @@ def create_app(object_name):
 
     db.init_app(app)
     migrate.init_app(app, db)
+
+    celery.init_app(app)
 
     from .auth import create_module as auth_create_module
     from .blog import create_module as blog_create_module
