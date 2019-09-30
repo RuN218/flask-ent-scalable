@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -6,6 +8,11 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_caching import Cache
 from flask_assets import Environment, Bundle
 from flask_mail import Mail
+from flask_youtube import Youtube
+
+logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+logging.getLogger().setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -14,6 +21,8 @@ debug_toolbar = DebugToolbarExtension()
 cache = Cache()
 assets_env = Environment()
 mail = Mail()
+
+youtube = Youtube()
 
 main_css = Bundle("css/bootstrap.css",
                   filters="cssmin",
@@ -46,6 +55,7 @@ def create_app(object_name):
     assets_env.init_app(app)
     celery.init_app(app)
     mail.init_app(app)
+    youtube.init_app(app)
 
     from .auth import create_module as auth_create_module
     from .blog import create_module as blog_create_module

@@ -59,6 +59,7 @@ def new_post():
         new_post.title = form.title.data
         new_post.user_id = current_user.id
         new_post.text = form.text.data
+        new_post.youtube_id = form.youtube_id.data
         db.session.add(new_post)
         db.session.commit()
         flash("Post added", "info")
@@ -75,11 +76,13 @@ def edit_post(id):
         if form.validate_on_submit():
             post.title = form.title.data
             post.text = form.text.data
+            post.youtube_id = form.youtube_id.data
             post.publish_date = datetime.datetime.now()
             db.session.merge(post)
             db.session.commit()
             return redirect(url_for(".post", post_id=post.id))
         form.title.data = post.title
+        form.youtube_id.data = post.youtube_id
         form.text.data = post.text
         return render_template("edit.html", form=form, post=post)
     abort(403)

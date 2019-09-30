@@ -13,6 +13,7 @@ class Post(db.Model):
     text = db.Column(db.Text(), nullable=False)
     publish_date = db.Column(db.DateTime(), default=datetime.datetime.now)
     user_id = db.Column(db.Integer(), db.ForeignKey("user.id"))
+    youtube_id = db.Column(db.String(20))
     comments = db.relationship("Comment", backref="post", lazy="dynamic")
     tags = db.relationship("Tag",
                            secondary=tags,
