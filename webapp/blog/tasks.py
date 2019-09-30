@@ -1,11 +1,15 @@
-import smtplib
+import logging
 import datetime
 
-from flask import current_app, render_template
-from email.mime.text import MIMEText
+from flask import render_template
+from flask_mail import Message
 
-from .. import celery
+from .. import celery, mail
 from .models import Reminder, Post
+
+logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+logging.getLogger().setLevel(logging.DEBUG)
+logs = logging.getLogger(__name__)
 
 
 @celery.task()
@@ -16,21 +20,17 @@ def log(msg):
 @celery.task(bind=True, ignore_result=True, default_retry_delay=300,
              max_retries=5)
 def remind(self, pk):
+    logs.info(f"Remind worker {pk}")
     reminder = Reminder.query.get(pk)
-    msg = MIMEText(reminder.text)
+    msg = Message(body=f"Text {str(reminder.text)}",
+                  recipients=[reminder.email], subject='Your reminder')
 
-    msg["Subject"] = "Your reminder"
-    msg["From"] = ""
-    msg["To"] = reminder.email
     try:
-        smtp_server = smtplib.SMTP(current_app.config["SMTP_SERVER"])
-        smtp_server.starttls()
-        smtp_server.login(current_app.config["SMTP_USER"],
-                          current_app.config["SMTP_PASSWORD"])
-        smtp_server.sendmail("", [reminder.email], msg.as_string())
-        smtp_server.close()
+        mail.send(msg)
+        logs.info(f"Email sent to {reminder.email}")
         return
     except Exception as e:
+        logs.error(e)
         self.retry(exc=e)
 
 
@@ -53,20 +53,16 @@ def digest(self):
     if len(posts) == 0:
         return
 
-    msg = MIMEText(render_template("digest.html", posts=posts), "html")
-
-    msg["Subject"] = "Weekly Digest"
-    msg["From"] = ""
+    msg = Message()
+    msg.html = render_template("digest.html", posts=posts)
+    msg.recipients = [""]
+    msg.subject = "Weekly Digest"
 
     try:
-        smtp_server = smtplib.SMTP(current_app.config["SMTP_SERVER"])
-        smtp_server.starttls()
-        smtp_server.login(current_app.config["SMTP_USER"],
-                          current_app["SMTP_PASSWORD"])
-        smtp_server.sendmail("", [""], msg.as_string())
-        smtp_server.close()
+        mail.send(msg)
         return
     except Exception as e:
+        logs.error(e)
         self.retry(exc=e)
 
 

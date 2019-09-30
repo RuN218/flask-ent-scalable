@@ -1,20 +1,34 @@
 import datetime
 
 from sqlalchemy import func, desc
-from flask import render_template, Blueprint, flash, redirect, url_for,\
-    current_app, abort
+from flask import render_template, Blueprint, flash, redirect, url_for, \
+    current_app, abort, request, get_flashed_messages, session
 from flask_login import login_required, current_user
 
 from .models import db, Post, Tag, Comment, tags
 from .forms import CommentForm, PostForm
 from ..auth.models import User
 from ..auth import has_role
+from .. import cache
 
 blog_blueprint = Blueprint("blog", __name__,
                            template_folder="../templates/blog",
                            url_prefix="/blog")
 
 
+def make_cache_key(*args, **kwargs):
+    path = request.path
+    args = str(hash(frozenset(request.args.items())))
+    messages = str(hash(frozenset(get_flashed_messages())))
+    if current_user.is_authenticated:
+        roles = str(current_user.roles)
+    else:
+        roles = ""
+    return (path + args + roles + session.get("locale", "") + messages)\
+        .encode("utf-8")
+
+
+@cache.cached(timeout=7200, key_prefix="sidebar_data")
 def sidebar_data():
     recent = Post.query.order_by(Post.publish_date.desc()).limit(5).all()
     top_tags = db.session.query(
@@ -25,6 +39,7 @@ def sidebar_data():
 
 @blog_blueprint.route('/')
 @blog_blueprint.route('/<int:page>')
+@cache.cached(timeout=60)
 def home(page=1):
     posts = Post.query.order_by(Post.publish_date.desc()).paginate(
         page, current_app.config.get("POSTS_PER_PAGE", 10), False)
@@ -71,6 +86,7 @@ def edit_post(id):
 
 
 @blog_blueprint.route("/post/<int:post_id>", methods=["GET", "POST"])
+@cache.cached(timeout=60, key_prefix=make_cache_key)
 def post(post_id):
     form = CommentForm()
     if form.validate_on_submit():
@@ -99,6 +115,7 @@ def post(post_id):
 
 
 @blog_blueprint.route("/posts_by_tag/<string:tag_name>")
+@cache.cached(timeout=60, key_prefix=make_cache_key)
 def posts_by_tag(tag_name):
     tag = Tag.query.filter_by(title=tag_name).first_or_404()
     posts = tag.posts.order_by(Post.publish_date.desc()).all()
@@ -109,6 +126,7 @@ def posts_by_tag(tag_name):
 
 
 @blog_blueprint.route("/posts_by_user/<string:username>")
+@cache.cached(timeout=60, key_prefix=make_cache_key)
 def posts_by_user(username):
     user = User.query.filter_by(username=username).first_or_404()
     posts = user.posts.order_by(Post.publish_date.desc()).all()
