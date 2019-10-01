@@ -7,8 +7,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     SECRET_KEY = b"\xd6\x01\xea\xce\xff\xc2w\xa3\xc2\x1d\xda\xee\xb5f\x93i\xf1^OV\xcc\xc6D\x83"
-    RECAPTCHA_PUBLIC_KEY = "6LdqeroUAAAAAG0vQ4eMKcVmOTzndjg0VlyrSmvs"
-    RECAPTCHA_PRIVATE_KEY = '6LdqeroUAAAAAPzRWc033xd6tKbOM3npKEQPQiMl'
+    RECAPTCHA_PUBLIC_KEY = "XXXX"
+    RECAPTCHA_PRIVATE_KEY = 'XXXX'
     POSTS_PER_PAGE = 10
 
     TWITTER_API_KEY = "XXXX"
@@ -23,8 +23,8 @@ class Config(object):
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 465
     MAIL_USE_SSL = True
-    MAIL_USER = "218.run@gmail.com"
-    MAIL_PASSWORD = "djctvm nhb nhb"
+    MAIL_USER = "XXXX"
+    MAIL_PASSWORD = "XXXX"
     MAIL_DEFAULT_SENDER = "from@flask.com"
 
     CELERY_SCHEDULE = {
